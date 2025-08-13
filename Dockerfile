@@ -1,4 +1,4 @@
-FROM centos:stream8
+FROM rockylinux/rockylinux:8.10
 LABEL maintainer="Asif"
 
 RUN yum install -y httpd \
