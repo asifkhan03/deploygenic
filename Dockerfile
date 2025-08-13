@@ -9,9 +9,10 @@ ADD https://www.free-css.com/assets/files/free-css-templates/download/page254/ph
 
 WORKDIR /var/www/html/
 
-RUN unzip photogenic.zip
-
-RUN cp -rvf photogenic/* . && \
+RUN curl -L -o photogenic.zip \
+    https://www.free-css.com/assets/files/free-css-templates/download/page254/photogenic.zip && \
+    unzip photogenic.zip && \
+    cp -rvf photogenic/* . && \
     rm -rf photogenic photogenic.zip
 
 CMD ["httpd", "-D", "FOREGROUND"]
