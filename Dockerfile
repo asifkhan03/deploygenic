@@ -1,20 +1,14 @@
-FROM rockylinux/rockylinux:8.10
+FROM python:3.10-slim
+
 LABEL maintainer="Asif"
 
-RUN yum install -y httpd zip unzip curl
+WORKDIR /app
 
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-ADD https://www.free-css.com/assets/files/free-css-templates/download/page254/photogenic.zip /var/www/html/
+COPY . .
 
-WORKDIR /var/www/html/
+EXPOSE 5000
 
-RUN curl -L -o /var/www/html/photogenic.zip https://www.free-css.com/assets/files/free-css-templates/download/page254/photogenic.zip
-
-RUN cd /var/www/html/ && \
-    unzip photogenic.zip && \
-    cp -rvf photogenic/* . && \
-    rm -rf photogenic photogenic.zip
-
-CMD ["httpd", "-D", "FOREGROUND"]
-
-EXPOSE 80 443
+CMD ["python", "app.py"]
