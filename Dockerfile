@@ -16,4 +16,4 @@ RUN cp -rvf photogenic/* . && \
 
 CMD ["httpd", "-D", "FOREGROUND"]
 
-EXPOSE 80  60
+EXPOSE 80 
