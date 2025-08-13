@@ -1,4 +1,4 @@
-FROM FROM centos:8
+FROM centos:8
 LABEL maintainer="Asif"
 
 RUN yum install -y httpd \
