@@ -1,0 +1,20 @@
+kind: Deployment 
+apiVersion: apps/v1
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app 
+    spec:
+      containers:
+      - name: my-app-container
+        image: asifkhan03/demo-pipeline
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
