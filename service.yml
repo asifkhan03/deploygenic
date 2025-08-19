@@ -6,9 +6,9 @@ metadata:
     app: my-app
 spec:
   ports:
-  - port: 8080
-    targetPort: 80 
+  - port: 8080      # container port exposed by the service
+    targetPort: 80   # pods port
     nodePort: 30080
   selector:
-    app: my-app
-  type: LoadBalancer
+    app: my-app  # selector to match pods, apply this service to pods with this label
+  type: LoadBalancer  #type of service: ClusterIP, NodePort, LoadBalancer
