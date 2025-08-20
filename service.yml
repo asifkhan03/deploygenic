@@ -1,4 +1,4 @@
-kind: Service 
+kind: Service
 apiVersion: v1
 metadata:
   name: my-app-service
@@ -6,9 +6,9 @@ metadata:
     app: my-app
 spec:
   ports:
-  - port: 8080      # container port exposed by the service
-    targetPort: 80   # pods port
-    nodePort: 30080
+  - port: 8080        # service port (what clients use inside cluster)
+    targetPort: 5000  # match Flask app inside pods
+    nodePort: 30080   # external port via NodePort
   selector:
-    app: my-app  # selector to match pods, apply this service to pods with this label
-  type: LoadBalancer  #type of service: ClusterIP, NodePort, LoadBalancer
+    app: my-app       # this matches your pod label
+  type: LoadBalancer  # can be NodePort/ClusterIP/LoadBalancer
