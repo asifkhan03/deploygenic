@@ -12,19 +12,21 @@
 # EXPOSE 5000
 
 # CMD ["python", "app.py"]
-
-FROM ubuntu
+FROM ubuntu:20.04
 LABEL maintainer="Asif"
 
-# Fix CentOS 8 repo issues
-RUN cd /etc/yum.repos.d/ && \
-    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+# Avoid interactive tzdata prompt
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Update system and SSL libs (fixes curl TLS issue)
-RUN apt -y update nss curl libcurl ca-certificates && \
-    apt -y install java httpd zip unzip curl && \
-    apt clean all
+# Update system and install required packages
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jdk \
+    apache2 \
+    zip \
+    unzip \
+    curl \
+    ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /var/www/html/
@@ -39,5 +41,4 @@ RUN curl -L -o photogenic.zip https://www.free-css.com/assets/files/free-css-tem
 EXPOSE 80
 
 # Start Apache in foreground
-CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
-
+CMD ["apache2ctl", "-D", "FOREGROUND"]
