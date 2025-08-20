@@ -1,11 +1,16 @@
 - hosts: all
   become: true
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config   # <-- Tell kubectl which config to use
   tasks:
     - name: delete old deployment 
-      command: kubectl delete -f /home/ubuntu/Deployment.yml
+      command: kubectl delete -f /home/ubuntu/Deployment.yml --ignore-not-found=true
+
     - name: delete old service
-      command: kubectl delete -f /home/ubuntu/service.yml
+      command: kubectl delete -f /home/ubuntu/service.yml --ignore-not-found=true
+
     - name: create new deployment
       command: kubectl apply -f /home/ubuntu/Deployment.yml
+
     - name: create new service  
       command: kubectl apply -f /home/ubuntu/service.yml
