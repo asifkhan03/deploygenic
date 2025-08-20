@@ -13,7 +13,7 @@
 
 # CMD ["python", "app.py"]
 
-FROM centos:8
+FROM ubuntu
 LABEL maintainer="Asif"
 
 # Fix CentOS 8 repo issues
@@ -22,9 +22,9 @@ RUN cd /etc/yum.repos.d/ && \
     sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
 # Update system and SSL libs (fixes curl TLS issue)
-RUN yum -y update nss curl libcurl ca-certificates && \
-    yum -y install java httpd zip unzip curl && \
-    yum clean all
+RUN apt -y update nss curl libcurl ca-certificates && \
+    apt -y install java httpd zip unzip curl && \
+    apt clean all
 
 # Set working directory
 WORKDIR /var/www/html/
