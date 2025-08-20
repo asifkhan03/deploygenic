@@ -16,23 +16,28 @@
 FROM centos:8
 LABEL maintainer="Asif"
 
-# Fix CentOS repo issue
-RUN cd /etc/yum.repos.d/ \
- && sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
- && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+# Fix CentOS 8 repo issues
+RUN cd /etc/yum.repos.d/ && \
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-# Install packages
-RUN yum -y install java httpd zip unzip curl
+# Update system and SSL libs (fixes curl TLS issue)
+RUN yum -y update nss curl libcurl ca-certificates && \
+    yum -y install java httpd zip unzip curl && \
+    yum clean all
 
 # Set working directory
 WORKDIR /var/www/html/
 
-# Download template safely with curl
+# Download & extract template
 RUN curl -L -o photogenic.zip https://www.free-css.com/assets/files/free-css-templates/download/page254/photogenic.zip \
- && unzip photogenic.zip \
- && cp -rvf photogenic/* . \
- && rm -rf photogenic photogenic.zip
+    && unzip photogenic.zip \
+    && cp -rvf photogenic/* . \
+    && rm -rf photogenic photogenic.zip
 
-# Start Apache
+# Expose port
 EXPOSE 80
+
+# Start Apache in foreground
 CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+
