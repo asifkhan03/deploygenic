@@ -12,7 +12,7 @@
 # EXPOSE 5000
 
 # CMD ["python", "app.py"]
-FROM centos
+FROM centos:8
 LABEL maintainer="Asif"
 RUN cd /etc/yum.repos.d/
 RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
