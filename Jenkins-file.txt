@@ -1,0 +1,49 @@
+node{
+    stage('Git Checkout'){
+        git branch: 'main', url: 'https://github.com/asifkhan03/deploygenic.git'
+    }
+    stage('send docker file to the ansible server'){
+    sshagent(['ansible_user']) {
+        sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11'
+        sh 'scp -r /var/lib/jenkins/workspace/demo-pipeline/*  ubuntu@13.233.64.11:/home/ubuntu/'
+        }
+    }
+    stage('Docker Build Image'){
+        sshagent(['ansible_user']) {
+        sh '''
+            ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11 "
+                cd /home/ubuntu &&
+                docker build -t demo-pipeline:v1.${BUILD_ID} .
+            "
+        '''
+    }
+}
+    stage('Docker image tagging'){
+        sshagent(['ansible_user']) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11  docker image tag $JOB_NAME:v1.$BUILD_ID asifkhan03/$JOB_NAME:v1.$BUILD_ID'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11  docker image tag $JOB_NAME:v1.$BUILD_ID asifkhan03/$JOB_NAME:latest'
+       }
+    }
+    
+    stage('Push docker image on the dockerhub'){
+        sshagent(['ansible_user']) {
+            withCredentials([string(credentialsId: '007ad1e1-457c-4c3c-aafd-cd8b959b4142', variable: 'dockerhub_password')]) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11 docker image push asifkhan03/$JOB_NAME:v1.$BUILD_ID'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11 docker image push asifkhan03/$JOB_NAME:latest'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11 docker rmi asifkhan03/$JOB_NAME:v1.$BUILD_ID  asifkhan03/$JOB_NAME:latest $JOB_NAME:v1.$BUILD_ID' 
+            }
+        }
+    }
+    stage('Copy files form jenkins to kubernetes server'){
+        sshagent(['minikuber-server']) {
+             sh 'scp -o StrictHostKeyChecking=no -r /var/lib/jenkins/workspace/demo-pipeline/* ubuntu@3.109.186.162:/home/ubuntu/'
+
+        }
+    }
+    stage('Kubernetes Deployment usign ansible '){
+        sshagent(['ansible_user']) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11 cd /home/ubuntu/'
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@13.233.64.11 ansible-playbook ansible.yml'
+        }
+    }
+}
